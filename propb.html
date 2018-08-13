@@ -1,0 +1,92 @@
+<html>
+	<head>
+		<style>
+			textarea {
+				width: 50%;
+			}
+		</style>
+	</head>
+<body>
+	<div id="ta">
+		<textarea id="regex">Total Quantity\s(.+?)\.00\n</textarea>
+		<br>
+		
+		AM and PM orders:<br>
+		<textarea rows="10" id="raw"></textarea>
+		<br>
+
+		Total Quantity occurs (<label id="tq_matches1">0</label>) times
+		<br>
+		<button id="clean">Clean</button> 
+		<button id="clean_2">Clean #2</button>
+		<button id="printable">Printable</button>
+
+<hr>
+
+		Cleaned:<br>
+		<textarea rows="10" id="sorted"></textarea>
+<br>
+		Total Quantity occurs (<label id="tq_matches2">0</label>) times
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById("clean").addEventListener("click", function(){
+		    var str = document.getElementById('raw').value;
+		    str = str.replace(/\r/g, '');
+			document.getElementById('tq_matches1').innerHTML = count_tq(str);
+
+		    var matches = get_matches();
+		    var str_matches = matches.join("");
+		    console.log( str_matches );
+			document.getElementById('tq_matches2').innerHTML = count_tq(str_matches);
+		    document.getElementById('sorted').value = str_matches;
+		});
+
+		document.getElementById("clean_2").addEventListener("click", function(){
+		    var str = document.getElementById('sorted').value;
+		    var matches = str.split("\n");
+		    var remove_lines = ['Tip Top', 'Wonder White'];
+			var cleaned = [];
+			//for(var c = matches.length-1; c >= 0; --c) {
+			for(var c = 0; c < matches.length; c++) {
+				var needed = 1;
+			    for(var m = 0; m < remove_lines.length; m++) {
+			    	if(matches[c].indexOf( remove_lines[m]) > -1 ) {
+			    		needed = 0;
+			    		break;
+			    	}
+			    }
+
+			    if(needed == 1) {
+			    	cleaned.push(matches[c]);
+			    }
+		    }
+		    
+		    var str_cleaned = cleaned.join("\n");
+			document.getElementById('tq_matches2').innerHTML = count_tq(str_cleaned);
+		    document.getElementById('sorted').value = str_cleaned;
+		    console.log(str_cleaned);
+		});
+
+		document.getElementById("printable").addEventListener("click", function(){
+		    var str = document.getElementById('sorted').value;
+		    var matches = str.split("\n");
+		    str = matches.join("\n<br>");
+		    document.write(str);
+		});
+
+		function get_matches() {
+			var regex = document.getElementById('regex').value;
+			var str = document.getElementById('raw').value;
+			var re = new RegExp(regex, 'gi');
+			var found = str.match(re);
+			return found;
+		}
+
+		function count_tq(str) {
+			count = (str.match(/Total Quantity/g) || []).length;
+			return count;
+		}
+	</script>
+</body>
+</html>
