@@ -36,6 +36,7 @@
 			document.getElementById('tq_matches1').innerHTML = count_tq(str);
 
 		    var matches = get_matches();
+		    matches = matches.sort();
 		    var str_matches = matches.join("");
 		    console.log( str_matches );
 			document.getElementById('tq_matches2').innerHTML = count_tq(str_matches);
