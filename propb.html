@@ -6,88 +6,221 @@
 			}
 		</style>
 	</head>
-<body>
-	<div id="ta">
-		<textarea id="regex">Total Quantity\s(.+?)\.00\n</textarea>
-		<br>
-		
-		AM and PM orders:<br>
-		<textarea rows="10" id="raw"></textarea>
-		<br>
 
-		Total Quantity occurs (<label id="tq_matches1">0</label>) times
-		<br>
-		<button id="clean">Clean</button> 
-		<button id="clean_2">Clean #2</button>
-		<button id="printable">Printable</button>
+	<body>
+		<div id="ta">
+			<textarea id="regex">Total Quantity\s(.+?)\.00\n</textarea>
+			
+			<br>
+			
+			Orders:<br>
+			<textarea rows="10" id="raw"></textarea>
+			
+			<br>
+			
+			Total Quantity occurs (<label id="tq_matches1">0</label>) times
+			<hr>
+			
+			<button id="clean">Clean</button> 
+			<button id="clean_2">Clean #2</button>
+			<button id="printable">Printable</button>
 
-<hr>
+			<hr>
 
-		Cleaned:<br>
-		<textarea rows="10" id="sorted"></textarea>
-<br>
-		Total Quantity occurs (<label id="tq_matches2">0</label>) times
-	</div>
+			Cleaned:<br>
+			<textarea rows="10" id="sorted"></textarea>
+			<br>
+			Total Quantity occurs (<label id="tq_matches2">0</label>) times
+		</div>
 
-	<script type="text/javascript">
-		document.getElementById("clean").addEventListener("click", function(){
-		    var str = document.getElementById('raw').value;
-		    str = str.replace(/\r/g, '');
-			document.getElementById('tq_matches1').innerHTML = count_tq(str);
+		<script type="text/javascript">
+			document.getElementById("clean").addEventListener("click", function() {
+			    var str_raw = document.getElementById('raw').value + "\n\nasdasd";
+			    str_raw = str_raw.replace(/\r/g, '');
+				document.getElementById('tq_matches1').innerHTML = count_tq(str_raw);
 
-		    var matches = get_matches();
-		    matches = matches.sort();
-		    var str_matches = matches.join("");
-		    console.log( str_matches );
-			document.getElementById('tq_matches2').innerHTML = count_tq(str_matches);
-		    document.getElementById('sorted').value = str_matches;
-		});
-
-		document.getElementById("clean_2").addEventListener("click", function(){
-		    var str = document.getElementById('sorted').value;
-		    var matches = str.split("\n");
-		    var remove_lines = ['Tip Top', 'Wonder White'];
-			var cleaned = [];
-			//for(var c = matches.length-1; c >= 0; --c) {
-			for(var c = 0; c < matches.length; c++) {
-				var needed = 1;
-			    for(var m = 0; m < remove_lines.length; m++) {
-			    	if(matches[c].indexOf( remove_lines[m]) > -1 ) {
-			    		needed = 0;
-			    		break;
-			    	}
+			    var matches = get_matches(str_raw);
+			    if(!matches.length) {
+			    	return;
 			    }
 
-			    if(needed == 1) {
-			    	cleaned.push(matches[c]);
+			    matches = matches.sort();
+			    var str_matches = matches.join("");
+
+			    console.log( str_matches );
+				document.getElementById('tq_matches2').innerHTML = count_tq(str_matches);
+			    document.getElementById('sorted').value = str_matches;
+			});
+
+			document.getElementById("clean_2").addEventListener("click", function(){
+			var move_to_end = [
+				"9 grain tip top bread original 700g",
+				"9 grain tip top plus wholemeal 750g",
+				"9 grain tip top pumpkin seed 700g",
+				"Abbott's village bakery bread country grains 800g",
+				"Abbott's village bakery bread rustic white 700g",
+				"Abbott's village bakery farmhouse wholemeal bread",
+				"Abbott's village bakery harvest seeds & grains bread",
+				"Abbott's village bakery light rye bread 680g",
+				"Abbott's village bakery pumpkin sunflower seed &",
+				"Abbott's village bakery toasted soy chickpea & quinoa",
+				"Australia's own wraps organic quinoa 225g",
+				"Bazaar lebanese bread white 6 pack",
+				"Bazaar lebanese bread wholemeal 6 pack",
+				"Bazaar pizza bases gourmet 2pk",
+				"Bazaar pizza bases mini 3pk",
+				"Bazaar pizza bases wholemeal 2 pack",
+				"Bill's certified organic ancient grains + superseeds",
+				"Bill's certified organic healthy bakery 100% spelt",
+				"Bill's certified organic healthy bakery 7 seeds multigrain",
+				"Burgen bread traditional rye 700g",
+				"Buttercup country split wholemeal bread 450g",
+				"Bürgen bread soy & linseed 700g",
+				"Bürgen bread wholegrain & oats 700g",
+				"Bürgen bread wholemeal & seeds 700g",
+				"Country life gluten free white bread 400g",
+				"Golden chocolate flavoured pikelet 8 pack",
+				"Golden cinnamon flavoured pikelet 8 pack",
+				"Golden crumpets breaks 6 pack",
+				"Golden crumpets round 6 pack",
+				"Golden crumpets round wholemeal 6 pack",
+				"Golden pancakes pdm 6pk 360g",
+				"Golden pikelets bite size 16 pack",
+				"Golden pikelets pdm 8 pack",
+				"Helga's bread light rye 680g",
+				"Helga's bread traditional white 750g",
+				"Helga's bread traditional wholemeal 750g",
+				"Helga's grain bread mixed grain 850g",
+				"Helga's grain bread soy & linseed 750g",
+				"Helga's low carb wraps 250g",
+				"Helga's lower carb bread 5 seeds 700g",
+				"Helga's lower carb bread soy & toasted sesame 700g",
+				"Helga's pumpkin seed and grain 720g",
+				"Helga's squar loaf 10 grains & seeds 750g",
+				"Helga's square loaf 10 grains & seeds wholemeal 750g",
+				"Helga's wholemeal & seed lower carb 700g",
+				"Helga's wholemeal bread with grains 850g",
+				"Helga's wraps mixed grain 560g 8pk",
+				"Helga's wraps traditional white 560g 8pk",
+				"Helgas gluten free traditional white rolls 4 pack",
+				"Helga's gluten free 5 seed loaf 500g 1.00",
+				"Helga's gluten free 5 seed loaf 500g 2.00",
+				"Helga's gluten free wholemeal loaf 500g 1.00",
+				"Lawson settlers grain traditional bread 750g",
+				"Lawson settlers grain traditional bread 750g",
+				"Lawson wholemeal traditional bread 750g",
+				"Macro free from gluten fruit pies mini berry bites 8 pack",
+				"Mighty soft bread rolls hamburger buns 6 pack",
+				"Mighty soft white roll 6pk",
+				"Mission chia wrap 384g",
+				"Mission chia wrap 384g",
+				"Mission low gi wraps wholemeal 6 pack",
+				"Mission pizza bases round 2pk 200g",
+				"Mission wraps light 8pk 567g",
+				"Mission wraps mini original 8 pack",
+				"Mission wraps mini wheat 8 pack",
+				"Mission wraps original 8 pack",
+				"Mission wraps soft & fluffy 450g 12 pk",
+				"Mission wraps spinach & herb 8 pack",
+				"Mission wraps wholegrain 8pk 567g",
+				"Mountain bread natural light wraps 8 pack",
+				"Nana premium lebanese bread white 500g",
+				"Rice mountain bread pdm 200g",
+				"Rye mountain bread pdm 200g",
+				"Sauers bread rolls turkish 2 pack",
+				"Sauers turkish bread 430g",
+				"Schwob's swiss farmer dark rye cob 800g",
+				"Schwob's swiss farmer light rye cob 700g",
+				"Schwobs white sourdough cob 800g",
+				"The one tip top omega 3 sandwich bread white 700g",
+				"The one tip top sandwich bread white 700g",
+				"The one tip top sandwich bread wholemeal 700g",
+				"The one tip top toast bread white 700g",
+				"Tip top blueberry & vanilla cafe loaf 500g",
+				"Tip top cafe style brioche bread with fruit 500g",
+				"Tip top cafe style raisin toast extra thick 650g",
+				"Tip top damper rolls 6 pack",
+				"Tip top english muffins original 6 pack",
+				"Tip top english muffins wholemeal 6 pack",
+				"Tip top raisin toast pdm 520g",
+				"Tip top sandwich thins lightly seeded 6 pack",
+				"Tip top sandwich thins original 6 pack",
+				"Tip top sandwich thins wholemeal 6 pack",
+				"Tip top sunblest multi grain sandwich bread 650g",
+				"Tip top sunblest white sandwich bread 650g",
+				"Tip top sunblest wholemeal sandwich bread 650g",
+				"Tip top wholemeal raisin toast 600g",
+				"Wonder white bread vitamins & minerals sandwich 700g",
+				"Wonder white bread vitamins & minerals toast 700g",
+				"Wonder white smooth wholegrain 700g",
+				"Wonder white white hi fibre sandwich slice bread 700g",
+				"Wonder white wholemeal with iron sandwich slice 700g",
+				"Wonder wholegrain wrap 6 pack",
+				"Woolworths country loaf white 750g",
+				"Woolworths country loaf wholegrain 850g",
+				"Woolworths country loaf wholemeal 750g",
+				"Woolworths english muffins 6 pack",
+				"Woolworths lightly fruited cake 700g",
+				"Woolworths meringues vanilla minis 100g",
+				"Woolworths multigrain sandwich hi-fibre bread 700g",
+				"Woolworths multigrain soft sandwich bread 650g",
+				"Woolworths pikelets 8 pack",
+				"Woolworths white soft hi-fibre bread 700g",
+				"Woolworths white soft sandwich bread 650g",
+				"Woolworths white soft toast bread 650g",
+				"Woolworths wholemeal sandwich hi-fibre bread 700g",
+				"Woolworths wholemeal soft sandwich bread 650g",
+				"Woolworths select cookies ginger kisses 8 pack"
+			];
+
+			    var str = document.getElementById('sorted').value;
+			    var matches = str.split("\n");
+
+				var cleaned = [];
+				var unneeded = [];
+				for(var c = 0; c < matches.length; c++) {
+					var needed = 1;
+				    for(var m = 0; m < move_to_end.length; m++) {
+				    	if(matches[c].indexOf( move_to_end[m]) > -1 ) {
+				    		needed = 0;
+				    		break;
+				    	}
+				    }
+
+				    if(needed == 1) {
+				    	cleaned.push(matches[c]);
+				    } else {
+				    	unneeded.push(matches[c]);
+				    }
 			    }
-		    }
-		    
-		    var str_cleaned = cleaned.join("\n");
-			document.getElementById('tq_matches2').innerHTML = count_tq(str_cleaned);
-		    document.getElementById('sorted').value = str_cleaned;
-		    console.log(str_cleaned);
-		});
+			    
+			    var str_cleaned = cleaned.join("\n");
+			    var str_unneeded = unneeded.join("\n");
+				
+				document.getElementById('tq_matches2').innerHTML = count_tq(str_cleaned) + count_tq(str_unneeded);
+			    document.getElementById('sorted').value = str_cleaned + "\n" + str_unneeded;
+			    
+			    console.log(str_cleaned);
+			    console.log('----------');
+			    console.log(str_unneeded);
+			});
 
-		document.getElementById("printable").addEventListener("click", function(){
-		    var str = document.getElementById('sorted').value;
-		    var matches = str.split("\n");
-		    str = matches.join("\n<br>");
-		    document.write(str);
-		});
+			document.getElementById("printable").addEventListener("click", function(){
+			    var str = document.getElementById('sorted').value;
+			    str = str.replace(/\n/g, '\n<br>');
+			    document.write(str);
+			});
 
-		function get_matches() {
-			var regex = document.getElementById('regex').value;
-			var str = document.getElementById('raw').value;
-			var re = new RegExp(regex, 'gi');
-			var found = str.match(re);
-			return found;
-		}
+			function get_matches(raw) {
+				var regex = document.getElementById('regex').value;
+				var re = new RegExp(regex, 'gi');
+				return raw.match(re);
+			}
 
-		function count_tq(str) {
-			count = (str.match(/Total Quantity/g) || []).length;
-			return count;
-		}
-	</script>
-</body>
+			function count_tq(str) {
+				count = (str.match(/Total Quantity/g) || []).length;
+				return count;
+			}
+		</script>
+	</body>
 </html>
