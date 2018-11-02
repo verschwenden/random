@@ -1,257 +1,49 @@
-<html>
-	<head>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 		<style>
 			textarea {
 				width: 50%;
 			}
+
 		</style>
 	</head>
 
 	<body>
-		<div id="ta">
-			<textarea id="regex">Total Quantity\s(.+?)\.00\n</textarea>
+		<div>
+			Regexp: <input disabled type="text" id="regex" value="(Total Quantity)(\s)(.+?)\s(\d*)(\.00\n)"></input>
 			
-			<br>
+			<hr>
 			
-			Orders:<br>
+			All Orders:<br>
 			<textarea rows="10" id="raw"></textarea>
 			
 			<br>
 			
-			Total Quantity occurs (<label id="tq_matches1">0</label>) times
-			<hr>
+			<button id="clean">Clean Orders List</button> 
 			
-			<button id="clean">Clean</button> 
-			<button id="clean_2">Clean #2</button>
-			<button id="printable">Printable</button>
+			<hr>
+
+			Selected Orders:<br>
+			<textarea rows="10" id="sorted"></textarea>
+			
+			<br>
+			
+			<button id="clean_2">Discard Unneeded Orders</button>
+			<button id="printable">Printable List</button>
 
 			<hr>
 
-			Cleaned:<br>
-			<textarea rows="10" id="sorted"></textarea>
-			<br>
-			Total Quantity occurs (<label id="tq_matches2">0</label>) times
+			Discarded Orders:<br>
+			<textarea rows="10" id="discarded"></textarea>
 		</div>
 
 		<script type="text/javascript">
-			document.getElementById("clean").addEventListener("click", function() {
-			    var str_raw = document.getElementById('raw').value + "\n\nasdasd";
-			    str_raw = str_raw.replace(/\r/g, '');
-				document.getElementById('tq_matches1').innerHTML = count_tq(str_raw);
-
-			    var matches = get_matches(str_raw);
-			    if(!matches.length) {
-			    	return;
-			    }
-
-			    matches = matches.sort();
-			    var str_matches = matches.join("");
-
-			    console.log( str_matches );
-				document.getElementById('tq_matches2').innerHTML = count_tq(str_matches);
-			    document.getElementById('sorted').value = str_matches;
-			});
-
-			document.getElementById("clean_2").addEventListener("click", function(){
-			var move_to_end = [
-"OSBncmFpbiB0aXAgdG9wIGJyZWFkIG9yaWdpbmFsIDcwMGc=",
-"OSBncmFpbiB0aXAgdG9wIHBsdXMgd2hvbGVtZWFsIDc1MGc=",
-"OSBncmFpbiB0aXAgdG9wIHB1bXBraW4gc2VlZCA3MDBn",
-"QWJib3R0J3MgdmlsbGFnZSBiYWtlcnkgYnJlYWQgY291bnRyeSBncmFpbnMgODAwZw==",
-"QWJib3R0J3MgdmlsbGFnZSBiYWtlcnkgYnJlYWQgcnVzdGljIHdoaXRlIDcwMGc=",
-"QWJib3R0J3MgdmlsbGFnZSBiYWtlcnkgZmFybWhvdXNlIHdob2xlbWVhbCBicmVhZA==",
-"QWJib3R0J3MgdmlsbGFnZSBiYWtlcnkgaGFydmVzdCBzZWVkcyAmIGdyYWlucyBicmVhZA==",
-"QWJib3R0J3MgdmlsbGFnZSBiYWtlcnkgbGlnaHQgcnllIGJyZWFkIDY4MGc=",
-"QWJib3R0J3MgdmlsbGFnZSBiYWtlcnkgcHVtcGtpbiBzdW5mbG93ZXIgc2VlZCAm",
-"QWJib3R0J3MgdmlsbGFnZSBiYWtlcnkgdG9hc3RlZCBzb3kgY2hpY2twZWEgJiBxdWlub2E=",
-"QXVzdHJhbGlhJ3Mgb3duIHdyYXBzIG9yZ2FuaWMgcXVpbm9hIDIyNWc=",
-"QmF6YWFyIGxlYmFuZXNlIGJyZWFkIHdoaXRlIDYgcGFjaw==",
-"QmF6YWFyIGxlYmFuZXNlIGJyZWFkIHdob2xlbWVhbCA2IHBhY2s=",
-"QmF6YWFyIHBpenphIGJhc2VzIGdvdXJtZXQgMnBr",
-"QmF6YWFyIHBpenphIGJhc2VzIG1pbmkgM3Br",
-"QmF6YWFyIHBpenphIGJhc2VzIHdob2xlbWVhbCAyIHBhY2s=",
-"QmlsbCdzIGNlcnRpZmllZCBvcmdhbmljIGFuY2llbnQgZ3JhaW5zICsgc3VwZXJzZWVkcw==",
-"QmlsbCdzIGNlcnRpZmllZCBvcmdhbmljIGhlYWx0aHkgYmFrZXJ5IDEwMCUgc3BlbHQ=",
-"QmlsbCdzIGNlcnRpZmllZCBvcmdhbmljIGhlYWx0aHkgYmFrZXJ5IDcgc2VlZHMgbXVsdGlncmFpbg==",
-"QmlsbCdzIGNlcnRpZmllZCBvcmdhbmljIGhlYWx0aHkgYmFrZXJ5IG1lZGl1bSByeWU=",
-"QmlsbCdzIGhlYWx0aCBiYWtlcnkgbXVsdGlmcnVpdCBzb3VyZG91Z2ggbG9hZiA2NjBn",
-"QnVyZ2VuIGJyZWFkIHRyYWRpdGlvbmFsIHJ5ZSA3MDBn",
-"QnV0dGVyY3VwIGNvdW50cnkgc3BsaXQgd2hpdGUgYnJlYWQgNDUwZw==",
-"QnV0dGVyY3VwIGNvdW50cnkgc3BsaXQgd2hvbGVtZWFsIGJyZWFkIDQ1MGc=",
-"QvxyZ2VuIGJyZWFkIHB1bXBraW4gc2VlZHMgNzAwZw==",
-"QvxyZ2VuIGJyZWFkIHNveSAmIGxpbnNlZWQgNzAwZw==",
-"QvxyZ2VuIGJyZWFkIHdob2xlZ3JhaW4gJiBvYXRzIDcwMGc=",
-"QvxyZ2VuIGJyZWFkIHdob2xlbWVhbCAmIHNlZWRzIDcwMGc=",
-"Q291bnRyeSBsaWZlIGdsdXRlbiBmcmVlIHdoaXRlIGJyZWFkIDQwMGc=",
-"RW1tYWxpbmUncyBjb3JuZmxha2UgYmlzY3VpdHMgcGRtIDM1MGc=",
-"RXNzZW50aWFscyBmcnVpdCBtaW5jZSBwaWVzIDYgcGFjaw==",
-"RXNzZW50aWFscyBmcnVpdCB0b2FzdCA1NjBn",
-"RXNzZW50aWFscyB3aGl0ZSBzYW5kd2ljaCBicmVhZCA2NTBn",
-"R29sZGVuIGNob2NvbGF0ZSBmbGF2b3VyZWQgcGlrZWxldCA4IHBhY2s=",
-"R29sZGVuIGNpbm5hbW9uIGZsYXZvdXJlZCBwaWtlbGV0IDggcGFjaw==",
-"R29sZGVuIGNydW1wZXRzIGJyZWFrcyA2IHBhY2s=",
-"R29sZGVuIGNydW1wZXRzIHJvdW5kIDYgcGFjaw==",
-"R29sZGVuIGNydW1wZXRzIHJvdW5kIHdob2xlbWVhbCA2IHBhY2s=",
-"R29sZGVuIHBhbmNha2VzIHBkbSA2cGsgMzYwZw==",
-"R29sZGVuIHBpa2VsZXRzIGJpdGUgc2l6ZSAxNiBwYWNr",
-"R29sZGVuIHBpa2VsZXRzIHBkbSA4IHBhY2s=",
-"SGVsZ2EncyBicmVhZCBsaWdodCByeWUgNjgwZw==",
-"SGVsZ2EncyBicmVhZCB0cmFkaXRpb25hbCB3aGl0ZSA3NTBn",
-"SGVsZ2EncyBicmVhZCB0cmFkaXRpb25hbCB3aG9sZW1lYWwgNzUwZw==",
-"SGVsZ2EncyBjYWZlIHRoaWNrIGN1dCB3aGl0ZSBicmVhZCA3NTBn",
-"SGVsZ2EncyBnbHV0ZW4gZnJlZSA1IHNlZWQgbG9hZiA1MDBn",
-"SGVsZ2EncyBnbHV0ZW4gZnJlZSBzb3kgJiBsaW5zZWVkIGxvYWYgNTAwZw==",
-"SGVsZ2EncyBnbHV0ZW4gZnJlZSB0cmFkaXRpb25hbCB3aGl0ZSBsb2FmIDQ3MGc=",
-"SGVsZ2EncyBnbHV0ZW4gZnJlZSB3aG9sZW1lYWwgbG9hZiA1MDBn",
-"SGVsZ2EncyBncmFpbiBicmVhZCBtaXhlZCBncmFpbiA4NTBn",
-"SGVsZ2EncyBncmFpbiBicmVhZCBzb3kgJiBsaW5zZWVkIDc1MGc=",
-"SGVsZ2EncyBsb3cgY2FyYiB3cmFwcyAyNTBn",
-"SGVsZ2EncyBsb3dlciBjYXJiIGJyZWFkIDUgc2VlZHMgNzAwZw==",
-"SGVsZ2EncyBsb3dlciBjYXJiIGJyZWFkIHNveSAmIHRvYXN0ZWQgc2VzYW1lIDcwMGc=",
-"SGVsZ2EncyBtaW5pIHdyYXBzIG1peGVkIGdyYWluIDQwMGcgOHBr",
-"SGVsZ2EncyBwdW1wa2luIHNlZWQgYW5kIGdyYWluIDcyMGc=",
-"SGVsZ2EncyBzcXVhciBsb2FmIDEwIGdyYWlucyAmIHNlZWRzIDc1MGc=",
-"SGVsZ2EncyBzcXVhcmUgbG9hZiAxMCBncmFpbnMgJiBzZWVkcyB3aG9sZW1lYWwgNzUwZw==",
-"SGVsZ2EncyB0dXJraXNoIGJyZWFkIGdhcmxpYyA0NTBn",
-"SGVsZ2EncyB0dXJraXNoIGJyZWFkIHdoaXRlIDQ1MGc=",
-"SGVsZ2EncyB0dXJraXNoIHJvbGwgd2hpdGUgNDAwZw==",
-"SGVsZ2EncyB3aG9sZW1lYWwgJiBzZWVkIGxvd2VyIGNhcmIgNzAwZw==",
-"SGVsZ2EncyB3aG9sZW1lYWwgYnJlYWQgd2l0aCBncmFpbnMgODUwZw==",
-"SGVsZ2EncyB3cmFwcyBtaXhlZCBncmFpbiA1NjBnIDhwaw==",
-"SGVsZ2EncyB3cmFwcyB0cmFkaXRpb25hbCB3aGl0ZSA1NjBnIDhwaw==",
-"SGVsZ2FzIGdsdXRlbiBmcmVlIDUgc2VlZCByb2xscyA0IHBhY2s=",
-"SGVsZ2FzIGdsdXRlbiBmcmVlIHRyYWRpdGlvbmFsIHdoaXRlIHJvbGxzIDQgcGFjaw==",
-"TGFtYmVydHogbGVia3VjaGVuIG1peCBtaXggNDAwZw==",
-"TGF3c29uIHNldHRsZXJzIGdyYWluIHRyYWRpdGlvbmFsIGJyZWFkIDc1MGc=",
-"TGF3c29uIHdob2xlbWVhbCB0cmFkaXRpb25hbCBicmVhZCA3NTBn",
-"TWFjcm8gZnJlZSBmcm9tIGdsdXRlbiBmcnVpdCBwaWVzIG1pbmkgYmVycnkgYml0ZXMgOCBwYWNr",
-"TWFjcm8gb3JnYW5pYyBmcnVpdCBzbmFja3MgZ2x1dGVuIGZyZWUgYXByaWNvdCBiaXRlcyA4",
-"TWlnaHR5IHNvZnQgYnJlYWQgcm9sbHMgaGFtYnVyZ2VyIGJ1bnMgNiBwYWNr",
-"TWlnaHR5IHNvZnQgYnJlYWQgcm9sbHMgaG90IGRvZyA2IHBhY2s=",
-"TWlnaHR5IHNvZnQgd2hpdGUgcm9sbCA2cGs=",
-"TWlzc2lvbiBjaGlhIHdyYXAgMzg0Zw==",
-"TWlzc2lvbiBsb3cgZ2kgd3JhcHMgd2hvbGVtZWFsIDYgcGFjaw==",
-"TWlzc2lvbiBwaXp6YSBiYXNlcyByb3VuZCAycGsgMjAwZw==",
-"TWlzc2lvbiByb3VuZCBwaXp6YSBiYXNlcyBnYXJsaWMgMnBrIDIwMGc=",
-"TWlzc2lvbiB3cmFwcyBsaWdodCA4cGsgNTY3Zw==",
-"TWlzc2lvbiB3cmFwcyBtaW5pIG9yaWdpbmFsIDggcGFjaw==",
-"TWlzc2lvbiB3cmFwcyBtaW5pIHdoZWF0IDggcGFjaw==",
-"TWlzc2lvbiB3cmFwcyBvcmlnaW5hbCA4IHBhY2s=",
-"TWlzc2lvbiB3cmFwcyBzb2Z0ICYgZmx1ZmZ5IDQ1MGcgMTIgcGs=",
-"TWlzc2lvbiB3cmFwcyBzcGluYWNoICYgaGVyYiA4IHBhY2s=",
-"TWlzc2lvbiB3cmFwcyB3aG9sZWdyYWluIDhwayA1Njdn",
-"TWlzc2lvbiB3cmFwcyB6ZXN0eSBnYXJsaWMgaGVyYiA4IHBhY2s=",
-"TW91bnRhaW4gYnJlYWQgbmF0dXJhbCBsaWdodCB3cmFwcyA4IHBhY2s=",
-"TmFuYSBwcmVtaXVtIGxlYmFuZXNlIGJyZWFkIHdoaXRlIDUwMGc=",
-"T2xkIHRpbWUgcGl6emEgYmFzZXMgZ2x1dGVuIGZyZWUgMiBwYWNr",
-"UmljZSBtb3VudGFpbiBicmVhZCBwZG0gMjAwZw==",
-"UnllIG1vdW50YWluIGJyZWFkIHBkbSAyMDBn",
-"U2F1ZXJzIGJyZWFkIHJvbGxzIHR1cmtpc2ggMiBwYWNr",
-"U2F1ZXJzIHR1cmtpc2ggYnJlYWQgNDMwZw==",
-"U2F1ZXJzIHR1cmtpc2ggYnJlYWQgd2hvbGVtZWFsIDQzMGc=",
-"U2Nod29iJ3Mgc3dpc3MgZmFybWVyIGRhcmsgcnllIGNvYiA4MDBn",
-"U2Nod29iJ3Mgc3dpc3MgZmFybWVyIGdyYWluIGNvYiA4MDBn",
-"U2Nod29iJ3Mgc3dpc3MgZmFybWVyIGxpZ2h0IHJ5ZSBjb2IgNzAwZw==",
-"U2Nod29icyB3aGl0ZSBzb3VyZG91Z2ggY29iIDgwMGc=",
-"VGhlIG9uZSB0aXAgdG9wIG9tZWdhIDMgc2FuZHdpY2ggYnJlYWQgd2hpdGUgNzAwZw==",
-"VGhlIG9uZSB0aXAgdG9wIHNhbmR3aWNoIGJyZWFkIHdoaXRlIDcwMGc=",
-"VGhlIG9uZSB0aXAgdG9wIHNhbmR3aWNoIGJyZWFkIHdob2xlbWVhbCA3MDBn",
-"VGhlIG9uZSB0aXAgdG9wIHRvYXN0IGJyZWFkIHdoaXRlIDcwMGc=",
-"VGlwIHRvcCBibHVlYmVycnkgJiB2YW5pbGxhIGNhZmUgbG9hZiA1MDBn",
-"VGlwIHRvcCBjYWZlIHN0eWxlIGJyaW9jaGUgYnJlYWQgd2l0aCBmcnVpdCA1MDBn",
-"VGlwIHRvcCBjYWZlIHN0eWxlIHJhaXNpbiB0b2FzdCBleHRyYSB0aGljayA2NTBn",
-"VGlwIHRvcCBkYW1wZXIgcm9sbHMgNiBwYWNr",
-"VGlwIHRvcCBlbmdsaXNoIG11ZmZpbnMgb3JpZ2luYWwgNiBwYWNr",
-"VGlwIHRvcCBlbmdsaXNoIG11ZmZpbnMgd2hvbGVtZWFsIDYgcGFjaw==",
-"VGlwIHRvcCBob3QgZG9nIHJvbGxzIDYgcGFjaw==",
-"VGlwIHRvcCByYWlzaW4gdG9hc3QgcGRtIDUyMGc=",
-"VGlwIHRvcCBzYW5kd2ljaCB0aGlucyBsaWdodGx5IHNlZWRlZCA2IHBhY2s=",
-"VGlwIHRvcCBzYW5kd2ljaCB0aGlucyBvcmlnaW5hbCA2IHBhY2s=",
-"VGlwIHRvcCBzYW5kd2ljaCB0aGlucyB3aG9sZW1lYWwgNiBwYWNr",
-"VGlwIHRvcCBzdW5ibGVzdCBtdWx0aSBncmFpbiBzYW5kd2ljaCBicmVhZCA2NTBn",
-"VGlwIHRvcCBzdW5ibGVzdCB3aGl0ZSBzYW5kd2ljaCBicmVhZCA2NTBn",
-"VGlwIHRvcCBzdW5ibGVzdCB3aG9sZW1lYWwgc2FuZHdpY2ggYnJlYWQgNjUwZw==",
-"VGlwIHRvcCB0aGUgb25lIG1peGVkIGdyYWlucyA3MDBn",
-"VGlwIHRvcCB3aG9sZW1lYWwgcmFpc2luIHRvYXN0IDYwMGc=",
-"V29uZGVyIHdoaXRlIGJyZWFkIHZpdGFtaW5zICYgbWluZXJhbHMgc2FuZHdpY2ggNzAwZw==",
-"V29uZGVyIHdoaXRlIGJyZWFkIHZpdGFtaW5zICYgbWluZXJhbHMgdG9hc3QgNzAwZw==",
-"V29uZGVyIHdoaXRlIHNtb290aCB3aG9sZWdyYWluIDcwMGc=",
-"V29uZGVyIHdoaXRlIHdoaXRlIGhpIGZpYnJlIHNhbmR3aWNoIHNsaWNlIGJyZWFkIDcwMGc=",
-"V29uZGVyIHdoaXRlIHdob2xlbWVhbCB3aXRoIGlyb24gc2FuZHdpY2ggc2xpY2UgNzAwZw==",
-"V29uZGVyIHdob2xlZ3JhaW4gd3JhcCA2IHBhY2s=",
-"V29vbHdvcnRocyBicmFuZHkgc25hcHMgOCBwYWNr",
-"V29vbHdvcnRocyBjb3VudHJ5IGxvYWYgd2hpdGUgNzUwZw==",
-"V29vbHdvcnRocyBjb3VudHJ5IGxvYWYgd2hvbGVncmFpbiA4NTBn",
-"V29vbHdvcnRocyBjb3VudHJ5IGxvYWYgd2hvbGVtZWFsIDc1MGc=",
-"V29vbHdvcnRocyBkYXJrIGZydWl0IGNha2UgNDY1Zw==",
-"V29vbHdvcnRocyBlbmdsaXNoIG11ZmZpbnMgNiBwYWNr",
-"V29vbHdvcnRocyBmcnVpdCBtaW5jZSBwaWVzIDYgcGFjaw==",
-"V29vbHdvcnRocyBpY2VkIGNocmlzdG1hcyBjb29raWUgNjBn",
-"V29vbHdvcnRocyBsaWdodCBmcnVpdCBjYWtlIDQ2NWc=",
-"V29vbHdvcnRocyBsaWdodGx5IGZydWl0ZWQgY2FrZSA3MDBn",
-"V29vbHdvcnRocyBtZXJpbmd1ZXMgdmFuaWxsYSBtaW5pcyAxMDBn",
-"V29vbHdvcnRocyBtaXhlZCBqYW0gdGFydHMgcGRtIDYgcGFjaw==",
-"V29vbHdvcnRocyBtdWx0aWdyYWluIHNhbmR3aWNoIGhpLWZpYnJlIGJyZWFkIDcwMGc=",
-"V29vbHdvcnRocyBtdWx0aWdyYWluIHNvZnQgc2FuZHdpY2ggYnJlYWQgNjUwZw==",
-"V29vbHdvcnRocyBwaWtlbGV0cyA4IHBhY2s=",
-"V29vbHdvcnRocyByaWNoIGNob2NvbGF0ZSBwdWRkaW5nIDUwMGc=",
-"V29vbHdvcnRocyBzZWxlY3QgY29va2llcyBnaW5nZXIga2lzc2VzIDggcGFjaw==",
-"V29vbHdvcnRocyB3aGl0ZSBzb2Z0IGhpLWZpYnJlIGJyZWFkIDcwMGc=",
-"V29vbHdvcnRocyB3aGl0ZSBzb2Z0IHNhbmR3aWNoIGJyZWFkIDY1MGc=",
-"V29vbHdvcnRocyB3aGl0ZSBzb2Z0IHRvYXN0IGJyZWFkIDY1MGc=",
-"V29vbHdvcnRocyB3aG9sZW1lYWwgc2FuZHdpY2ggaGktZmlicmUgYnJlYWQgNzAwZw==",
-"V29vbHdvcnRocyB3aG9sZW1lYWwgc29mdCBzYW5kd2ljaCBicmVhZCA2NTBn",
-"V29vbHdvcnRocyB3aG9sZW1lYWwgc29mdCBzYW5kd2ljaCBicmVhZCA2NTBnIDQuMDA=",
-			];
-
-			    var str = document.getElementById('sorted').value;
-			    var matches = str.split("\n");
-
-				var cleaned = [];
-				var unneeded = [];
-				for(var c = 0; c < matches.length; c++) {
-					var needed = 1;
-				    for(var m = 0; m < move_to_end.length; m++) {
-				    	if(matches[c].indexOf( atob(move_to_end[m]) ) > -1 ) {
-				    		needed = 0;
-				    		break;
-				    	}
-				    }
-
-				    if(needed == 1) {
-				    	cleaned.push(matches[c]);
-				    } else {
-				    	unneeded.push(matches[c]);
-				    }
-			    }
-			    
-			    var str_cleaned = cleaned.join("\n");
-			    var str_unneeded = unneeded.join("\n");
-				
-				document.getElementById('tq_matches2').innerHTML = count_tq(str_cleaned) + count_tq(str_unneeded);
-			    document.getElementById('sorted').value = str_cleaned + "\n" + str_unneeded;
-			    
-			    console.log(str_cleaned);
-			    console.log('----------');
-			    console.log(str_unneeded);
-			});
-
-			document.getElementById("printable").addEventListener("click", function(){
-			    var str = document.getElementById('sorted').value;
-			    str = str.replace(/\n/g, '\n<br>');
-			    document.write(str);
-			});
-
-			function get_matches(raw) {
-				var regex = document.getElementById('regex').value;
-				var re = new RegExp(regex, 'gi');
-				return raw.match(re);
-			}
-
-			function count_tq(str) {
-				count = (str.match(/Total Quantity/g) || []).length;
-				return count;
-			}
+			
 		</script>
+		<script src="js/js.js"></script>
+		<script src="js/md5.min.js"></script>
 	</body>
 </html>
